@@ -1,8 +1,6 @@
 ---
 language: nodejs
 default_versions:
-- name: yarn
-  version: 0.22.0
 - name: node
   version: 4.8.2
 exclude_files:
@@ -15,25 +13,15 @@ exclude_files:
 - bin/package
 - buildpack-packager/
 - nodejs_buildpack-*v*.zip
-url_to_dependency_map:
-- match: node\/v(\d+\.\d+\.\d+)
-  name: node
-  version: "$1"
-- match: yarn-v(\d+\.\d+\.\d+)\.tar\.gz
-  name: yarn
-  version: "$1"
 dependency_deprecation_dates:
-- match: 4\.\d+\.\d+
-  version_line: '4'
-  name: node
+- name: node
+  version_line: '4.x'
   date: 2018-04-01
-- match: 6\.\d+\.\d+
-  version_line: '6'
-  name: node
+- name: node
+  version_line: '6.x'
   date: 2019-04-18
-- match: 7\.\d+\.\d+
-  version_line: '7'
-  name: node
+- name: node
+  version_line: '7.x'
   date: 2017-06-30
 dependencies:
 - name: node

@@ -7,6 +7,9 @@
     "logfmt": "~1.1.2",
     "express": "~4.0.0"
   },
-  "engines" : { "yarn" : "*" }
-
+  "engines" : {
+    "node": "6.10.0",
+    "npm": "3.10.9",
+    "yarn" : "0.21.2"
+  }
 }
