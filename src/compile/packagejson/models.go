@@ -1,4 +1,4 @@
-package main
+package packagejson
 
 import (
 	"os"
@@ -18,14 +18,15 @@ type PackageJson struct {
 	Scripts map[string]string
 }
 
-func (packageJson *PackageJson) Load(log libbuildpack.Logger, json libbuildpack.JSON, dir string) error {
+func New(log libbuildpack.Logger, json libbuildpack.JSON, dir string) (*PackageJson, error) {
+	packageJson := new(PackageJson)
 	if _, err := os.Stat(filepath.Join(dir, "package.json")); os.IsNotExist(err) {
 		log.Warning("No package.json found")
 	} else {
-		if err := json.Load(filepath.Join(dir), &packageJson); err != nil {
+		if err := json.Load(filepath.Join(dir, "package.json"), &packageJson); err != nil {
 			log.Error("Unable to parse package.json")
-			return err
+			return nil, err
 		}
 	}
-	return nil
+	return packageJson, nil
 }

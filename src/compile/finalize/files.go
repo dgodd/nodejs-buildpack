@@ -1,4 +1,4 @@
-package main
+package finalize
 
 const PROFILE_NODEJS = `
 calculate_concurrency() {
@@ -29,8 +29,8 @@ detect_memory() {
   esac
 }
 
-export PATH="$HOME/.cloudfoundry/node/bin:$HOME/.cloudfoundry/yarn/bin:$PATH:$HOME/bin:$HOME/node_modules/.bin"
-export NODE_HOME="$HOME/.cloudfoundry/node"
+export PATH="$HOME/.cloudfoundry/0/bin:$PATH:$HOME/bin:$HOME/node_modules/.bin"
+export NODE_HOME="$HOME/.cloudfoundry/0/node"
 export NODE_ENV=${NODE_ENV:-production}
 
 calculate_concurrency

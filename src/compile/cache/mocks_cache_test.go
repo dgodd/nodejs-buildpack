@@ -43,6 +43,22 @@ func (_mr *_MockRunnerRecorder) Run(arg0 interface{}, arg1 ...interface{}) *gomo
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Run", _s...)
 }
 
+func (_m *MockRunner) CaptureStdout(program string, args ...string) (string, error) {
+	_s := []interface{}{program}
+	for _, _x := range args {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CaptureStdout", _s...)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockRunnerRecorder) CaptureStdout(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0}, arg1...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CaptureStdout", _s...)
+}
+
 // Mock of Logger interface
 type MockLogger struct {
 	ctrl     *gomock.Controller
