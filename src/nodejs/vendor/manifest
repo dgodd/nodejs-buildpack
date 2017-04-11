@@ -13,7 +13,7 @@
 			"importpath": "github.com/cloudfoundry/libbuildpack",
 			"repository": "https://github.com/cloudfoundry/libbuildpack",
 			"vcs": "git",
-			"revision": "f1113682ebe4956ca8ffec9b4baffe5d344e9928",
+			"revision": "d512dc5977dd41971e343124bdc110ba5f5e0b27",
 			"branch": "master",
 			"notests": true
 		},
@@ -48,7 +48,7 @@
 			"importpath": "github.com/onsi/ginkgo",
 			"repository": "https://github.com/onsi/ginkgo",
 			"vcs": "git",
-			"revision": "77a8c1e5c40d6bb6c5eb4dd4bdce9763564f6298",
+			"revision": "f40a49d81e5c12e90400620b6242fb29a8e7c9d9",
 			"branch": "master",
 			"notests": true
 		},
@@ -56,7 +56,7 @@
 			"importpath": "github.com/onsi/gomega",
 			"repository": "https://github.com/onsi/gomega",
 			"vcs": "git",
-			"revision": "334b8f472b3af5d541c5642701c1e29e2126f486",
+			"revision": "9b8c753e8dfb382618ba8fa19b4197b5dcb0434c",
 			"branch": "master",
 			"notests": true
 		},
