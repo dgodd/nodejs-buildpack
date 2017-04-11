@@ -1,8 +1,8 @@
 package cache_test
 
 import (
-	"compile/cache"
 	"io/ioutil"
+	"nodejs/cache"
 	"os"
 	"path/filepath"
 

@@ -1,8 +1,8 @@
 package finalize_test
 
 import (
-	"compile/finalize"
 	"io/ioutil"
+	"nodejs/finalize"
 	"os"
 
 	"github.com/golang/mock/gomock"

@@ -1,8 +1,8 @@
 package supply
 
 import (
-	"compile/packagejson"
 	"errors"
+	"nodejs/packagejson"
 	"os"
 	"path/filepath"
 	"strings"

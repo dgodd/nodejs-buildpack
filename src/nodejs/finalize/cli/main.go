@@ -1,9 +1,9 @@
 package main
 
 import (
-	"compile/cache"
-	"compile/finalize"
-	"compile/packagejson"
+	"nodejs/cache"
+	"nodejs/finalize"
+	"nodejs/packagejson"
 	"os"
 
 	"github.com/cloudfoundry/libbuildpack"

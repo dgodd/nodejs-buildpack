@@ -1,9 +1,9 @@
 package supply_test
 
 import (
-	"compile/packagejson"
-	"compile/supply"
 	"io/ioutil"
+	"nodejs/packagejson"
+	"nodejs/supply"
 	"os"
 
 	"github.com/golang/mock/gomock"

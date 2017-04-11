@@ -1,8 +1,8 @@
 package main
 
 import (
-	"compile/packagejson"
-	"compile/supply"
+	"nodejs/packagejson"
+	"nodejs/supply"
 	"os"
 	"path/filepath"
 
