@@ -22,6 +22,7 @@ type Runner interface {
 type Manifest interface {
 	DefaultVersion(depName string) (libbuildpack.Dependency, error)
 	InstallDependency(dep libbuildpack.Dependency, outputDir string) error
+	AllDependencyVersions(string) []string
 }
 
 type Supply struct {
@@ -77,6 +78,15 @@ func (c *Supply) InstallNodejs() error {
 			return err
 		}
 		version = dep.Version
+	} else {
+		versionConstraint := version
+		if strings.HasPrefix(versionConstraint, "~>") {
+			versionConstraint = strings.Replace(versionConstraint, "~>", "~", 1)
+		}
+		versions := c.Manifest.AllDependencyVersions("node")
+		if matchingVersion, err := libbuildpack.FindMatchingVersion(versionConstraint, versions); err == nil {
+			version = matchingVersion
+		}
 	}
 
 	dep := libbuildpack.Dependency{Name: "node", Version: version}
