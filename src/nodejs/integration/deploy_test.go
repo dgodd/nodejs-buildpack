@@ -122,7 +122,7 @@ func (a *App) GetUrl(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	cmd := exec.Command("cf", "curl", "/v2/apps/"+guid+"/instances")
+	cmd := exec.Command("cf", "curl", "/v2/apps/"+guid+"/summary")
 	data, err := cmd.Output()
 	if err != nil {
 		return "", err
@@ -159,9 +159,6 @@ var _ = Describe("Deploy", func() {
 	Context("when specifying a range for the nodeJS version in the package.json", func() {
 		BeforeEach(func() {
 			app = &App{Name: "node_version_range", Buildpack: buildpack, appGUID: ""}
-		})
-		FIt("...", func() {
-			Expect(app.GetUrl("/hi")).To(Equal("himom"))
 		})
 		It("resolves to a nodeJS version successfully", func() {
 			Expect(app.Push()).To(Succeed())
