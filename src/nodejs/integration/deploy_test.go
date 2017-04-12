@@ -1,17 +1,16 @@
 package integration_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/onsi/gomega/gexec"
 )
 
 type cfConfig struct {
@@ -31,10 +30,10 @@ type cfInstance struct {
 }
 
 type App struct {
-	Name       string
-	Buildpack  string
-	LogSession *gexec.Session
-	appGUID    string
+	Name      string
+	Buildpack string
+	Stdout    *bytes.Buffer
+	appGUID   string
 }
 
 func (a *App) SpaceGUID() (string, error) {
@@ -96,21 +95,19 @@ func (a *App) InstanceStates() ([]string, error) {
 
 func (a *App) Push() error {
 	command := exec.Command("cf", "push", a.Name, "--no-start", "-b", a.Buildpack, "-p", filepath.Join("../../../cf_spec/fixtures", a.Name))
-	session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
-	if err != nil {
+	if err := command.Run(); err != nil {
 		return err
 	}
-	session.Wait(30 * time.Second)
 
 	command = exec.Command("cf", "logs", a.Name)
-	a.LogSession, err = gexec.Start(command, GinkgoWriter, GinkgoWriter)
-	if err != nil {
+	a.Stdout = bytes.NewBuffer(nil)
+	command.Stdout = a.Stdout
+	if err := command.Start(); err != nil {
 		return err
 	}
 
 	command = exec.Command("cf", "start", a.Name)
-	err = command.Run()
-	if err != nil {
+	if err := command.Run(); err != nil {
 		return err
 	}
 	return nil
@@ -127,6 +124,6 @@ var _ = Describe("Deploy", func() {
 		app := &App{Name: appName, Buildpack: buildpack, appGUID: ""}
 		Expect(app.Push()).To(Succeed())
 		Expect(app.InstanceStates()).To(Equal([]string{"RUNNING"}))
-		Expect(app.LogSession.Out).To(ContainSubstring("Downloading and installing node 4."))
+		Expect(app.Stdout.String()).To(ContainSubstring("Downloading and installing node 4."))
 	})
 })
