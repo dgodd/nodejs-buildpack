@@ -5,12 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/tidwall/gjson"
 )
 
 type cfConfig struct {
@@ -95,7 +97,8 @@ func (a *App) InstanceStates() ([]string, error) {
 
 func (a *App) Push() error {
 	command := exec.Command("cf", "push", a.Name, "--no-start", "-b", a.Buildpack, "-p", filepath.Join("../../../cf_spec/fixtures", a.Name))
-	if err := command.Run(); err != nil {
+	if data, err := command.Output(); err != nil {
+		fmt.Println(string(data))
 		return err
 	}
 
@@ -107,23 +110,65 @@ func (a *App) Push() error {
 	}
 
 	command = exec.Command("cf", "start", a.Name)
-	if err := command.Run(); err != nil {
+	if data, err := command.Output(); err != nil {
+		fmt.Println(string(data))
 		return err
 	}
 	return nil
 }
 
-var _ = Describe("Deploy", func() {
-	var appName, buildpack string
-	BeforeEach(func() {
-		buildpack = "https://github.com/dgodd/nodejs-buildpack.git#golang"
-		appName = "with_yarn"
-	})
+func (a *App) GetUrl(path string) (string, error) {
+	guid, err := a.AppGUID()
+	if err != nil {
+		return "", err
+	}
+	cmd := exec.Command("cf", "curl", "/v2/apps/"+guid+"/instances")
+	data, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	host := gjson.Get(string(data), "routes.0.host").String()
+	domain := gjson.Get(string(data), "routes.0.domain.name").String()
+	return fmt.Sprintf("http://%s.%s%s", host, domain, path), nil
+}
 
-	It("run", func() {
-		app := &App{Name: appName, Buildpack: buildpack, appGUID: ""}
-		Expect(app.Push()).To(Succeed())
-		Expect(app.InstanceStates()).To(Equal([]string{"RUNNING"}))
-		Expect(app.Stdout.String()).To(ContainSubstring("Downloading and installing node 4."))
+func (a *App) GetBody(path string) (string, error) {
+	url, err := a.GetUrl(path)
+	if err != nil {
+		return "", err
+	}
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	// TODO: Non 200 ??
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(data), err
+}
+
+var _ = Describe("Deploy", func() {
+	// const buildpack = "https://github.com/dgodd/nodejs-buildpack.git#golang"
+	const buildpack = "nodejs_buildpack"
+	var app *App
+	AfterEach(func() { app = nil })
+
+	Context("when specifying a range for the nodeJS version in the package.json", func() {
+		BeforeEach(func() {
+			app = &App{Name: "node_version_range", Buildpack: buildpack, appGUID: ""}
+		})
+		FIt("...", func() {
+			Expect(app.GetUrl("/hi")).To(Equal("himom"))
+		})
+		It("resolves to a nodeJS version successfully", func() {
+			Expect(app.Push()).To(Succeed())
+			Expect(app.InstanceStates()).To(Equal([]string{"RUNNING"}))
+			Expect(app.Stdout.String()).To(ContainSubstring("Installing node 4."))
+
+			Expect(app.GetBody("/")).To(Equal("Hello, World!"))
+		})
 	})
 })
