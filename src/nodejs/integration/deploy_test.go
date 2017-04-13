@@ -96,7 +96,7 @@ func (a *App) InstanceStates() ([]string, error) {
 }
 
 func (a *App) Push() error {
-	command := exec.Command("cf", "push", a.Name, "--no-start", "-b", a.Buildpack, "-p", filepath.Join("../../../cf_spec/fixtures", a.Name))
+	command := exec.Command("cf", "push", a.Name, "--no-start", "--random-route", "-b", a.Buildpack, "-p", filepath.Join("../../../cf_spec/fixtures", a.Name))
 	if data, err := command.Output(); err != nil {
 		fmt.Println(string(data))
 		return err
@@ -150,17 +150,56 @@ func (a *App) GetBody(path string) (string, error) {
 	return string(data), err
 }
 
+func (a *App) Destroy() error {
+	command := exec.Command("cf", "delete", "-f", a.Name)
+	if err := command.Run(); err != nil {
+		return err
+	}
+	return nil
+}
+
 var _ = Describe("Deploy", func() {
-	// const buildpack = "https://github.com/dgodd/nodejs-buildpack.git#golang"
-	const buildpack = "nodejs_buildpack"
+	const buildpack = "https://github.com/dgodd/nodejs-buildpack.git#golang"
+	// const buildpack = "nodejs_buildpack"
 	var app *App
-	AfterEach(func() { app = nil })
+	AfterEach(func() {
+		if app != nil {
+			app.Destroy()
+		}
+		app = nil
+	})
 
 	Context("when specifying a range for the nodeJS version in the package.json", func() {
 		BeforeEach(func() {
 			app = &App{Name: "node_version_range", Buildpack: buildpack, appGUID: ""}
 		})
 		It("resolves to a nodeJS version successfully", func() {
+			Expect(app.Push()).To(Succeed())
+			Expect(app.InstanceStates()).To(Equal([]string{"RUNNING"}))
+			Expect(app.Stdout.String()).To(ContainSubstring("Installing node 4."))
+
+			Expect(app.GetBody("/")).To(Equal("Hello, World!"))
+		})
+	})
+
+	Context("when specifying a version 6 for the nodeJS version in the package.json", func() {
+		BeforeEach(func() {
+			app = &App{Name: "node_version_6", Buildpack: buildpack, appGUID: ""}
+		})
+		It("resolves to a nodeJS version successfully", func() {
+			Expect(app.Push()).To(Succeed())
+			Expect(app.InstanceStates()).To(Equal([]string{"RUNNING"}))
+			Expect(app.Stdout.String()).To(ContainSubstring("Installing node 6."))
+
+			Expect(app.GetBody("/")).To(Equal("Hello, World!"))
+		})
+	})
+
+	Context("when not specifying a nodeJS version in the package.json", func() {
+		BeforeEach(func() {
+			app = &App{Name: "without_node_version", Buildpack: buildpack, appGUID: ""}
+		})
+		It("resolves to the stable nodeJS version successfully", func() {
 			Expect(app.Push()).To(Succeed())
 			Expect(app.InstanceStates()).To(Equal([]string{"RUNNING"}))
 			Expect(app.Stdout.String()).To(ContainSubstring("Installing node 4."))

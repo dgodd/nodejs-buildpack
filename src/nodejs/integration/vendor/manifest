@@ -1,0 +1,21 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/tidwall/gjson",
+			"repository": "https://github.com/tidwall/gjson",
+			"vcs": "git",
+			"revision": "a8ccb8767af99e49e95cc186c7742dabb5c98929",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/tidwall/match",
+			"repository": "https://github.com/tidwall/match",
+			"vcs": "git",
+			"revision": "173748da739a410c5b0b813b956f89ff94730b4c",
+			"branch": "master",
+			"notests": true
+		}
+	]
+}
