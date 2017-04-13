@@ -205,6 +205,72 @@ var _ = Describe("Deploy", func() {
 			Expect(app.Stdout.String()).To(ContainSubstring("Installing node 4."))
 
 			Expect(app.GetBody("/")).To(Equal("Hello, World!"))
+
+			Specify("correctly displays the buildpack version", func() {
+				Expect(app.Stdout.String()).To(ContainSubstring("node.js " + buildpackVersion))
+			})
 		})
 	})
+
+	Context("with an unreleased nodejs version", func() {
+		BeforeEach(func() {
+			app = &App{Name: "unreleased_node_version", Buildpack: buildpack, appGUID: ""}
+		})
+
+		It("displays a nice error messages and gracefully fails", func() {
+			Expect(app.Push()).ToNot(Succeed())
+			Expect(app.Stdout.String()).To(ContainSubstring("Installing node 9000.0.0"))
+			Expect(app.Stdout.String()).To(ContainSubstring("DEPENDENCY MISSING IN MANIFEST:"))
+			Expect(app.Stdout.String()).To(ContainSubstring("-----> Build failed"))
+		})
+	})
+
+	Context("with an unsupported, but released, nodejs version", func() {
+		BeforeEach(func() {
+			app = &App{Name: "unsupported_node_version", Buildpack: buildpack, appGUID: ""}
+		})
+
+		It("displays a nice error messages and gracefully fails", func() {
+			Expect(app.Push()).ToNot(Succeed())
+			Expect(app.Stdout.String()).To(ContainSubstring("Installing node 4.1.1"))
+			Expect(app.Stdout.String()).To(ContainSubstring("DEPENDENCY MISSING IN MANIFEST:"))
+			Expect(app.Stdout.String()).To(ContainSubstring("-----> Build failed"))
+		})
+	})
+
+	PContext("with an app that has vendored dependencies", func() {})
+	PContext("with an app with a yarn.lock file", func() {})
+	PContext("with an app with a yarn.lock and vendored dependencies", func() {})
+
+	Context("with an app with an out of date yarn.lock", func() {
+		BeforeEach(func() {
+			app = &App{Name: "out_of_date_yarn_lock", Buildpack: buildpack, appGUID: ""}
+		})
+
+		It("warns that yarn.lock is out of date", func() {
+			Expect(app.Push()).ToNot(Succeed())
+			Expect(app.Stdout.String()).To(ContainSubstring("yarn.lock is outdated"))
+			Expect(app.InstanceStates()).To(Equal([]string{"RUNNING"}))
+		})
+	})
+
+	PContext("with an app with no vendored dependencies", func() {})
+
+	Context("with an incomplete node_modules directory", func() {
+		BeforeEach(func() {
+			app = &App{Name: "incomplete_node_modules", Buildpack: buildpack, appGUID: ""}
+		})
+
+		PIt("downloads missing dependencies from package.json", func() {
+			Expect(app.Push()).ToNot(Succeed())
+			Expect(app.InstanceStates()).To(Equal([]string{"RUNNING"}))
+
+			// expect(Dir).to_not exist("cf_spec/fixtures/node_web_app_with_incomplete_node_modules/node_modules/hashish")
+			// expect(app).to have_file("/app/node_modules/hashish")
+			// expect(app).to have_file("/app/node_modules/express")
+		})
+	})
+
+	PContext("with an incomplete package.json", func() {})
+	PContext("with a cached buildpack in an air gapped environment", func() {})
 })
