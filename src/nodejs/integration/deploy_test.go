@@ -150,12 +150,18 @@ func (a *App) GetBody(path string) (string, error) {
 	return string(data), err
 }
 
-func (a *App) Destroy() error {
-	command := exec.Command("cf", "delete", "-f", a.Name)
-	if err := command.Run(); err != nil {
+func (a *App) HasFile(path string) error {
+	cmd := exec.Command("cf", "ssh", a.Name, "-c", "ls -d "+path)
+	if data, err := cmd.CombinedOutput(); err != nil {
+		fmt.Println(string(data))
 		return err
 	}
 	return nil
+}
+
+func (a *App) Destroy() error {
+	command := exec.Command("cf", "delete", "-f", a.Name)
+	return command.Run()
 }
 
 var _ = Describe("Deploy", func() {
@@ -261,13 +267,16 @@ var _ = Describe("Deploy", func() {
 			app = &App{Name: "incomplete_node_modules", Buildpack: buildpack, appGUID: ""}
 		})
 
-		PIt("downloads missing dependencies from package.json", func() {
-			Expect(app.Push()).ToNot(Succeed())
+		It("downloads missing dependencies from package.json", func() {
+			Expect(app.Push()).To(Succeed())
 			Expect(app.InstanceStates()).To(Equal([]string{"RUNNING"}))
 
+			// TODO
 			// expect(Dir).to_not exist("cf_spec/fixtures/node_web_app_with_incomplete_node_modules/node_modules/hashish")
-			// expect(app).to have_file("/app/node_modules/hashish")
-			// expect(app).to have_file("/app/node_modules/express")
+
+			Expect(app.HasFile("/app/node_modules/hashish")).To(BeNil())
+			Expect(app.HasFile("/app/node_modules/express")).To(BeNil())
+			Expect(app.HasFile("/app/node_modules/not_real_thing")).ToNot(BeNil())
 		})
 	})
 
