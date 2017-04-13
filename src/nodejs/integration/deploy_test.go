@@ -152,11 +152,7 @@ func (a *App) GetBody(path string) (string, error) {
 
 func (a *App) HasFile(path string) error {
 	cmd := exec.Command("cf", "ssh", a.Name, "-c", "ls -d "+path)
-	if data, err := cmd.CombinedOutput(); err != nil {
-		fmt.Println(string(data))
-		return err
-	}
-	return nil
+	return cmd.Run()
 }
 
 func (a *App) Destroy() error {
