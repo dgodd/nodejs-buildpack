@@ -80,9 +80,6 @@ func (c *Supply) InstallNodejs() error {
 		version = dep.Version
 	} else {
 		versionConstraint := version
-		if strings.HasPrefix(versionConstraint, "~>") {
-			versionConstraint = strings.Replace(versionConstraint, "~>", "~", 1)
-		}
 		versions := c.Manifest.AllDependencyVersions("node")
 		if matchingVersion, err := libbuildpack.FindMatchingVersion(versionConstraint, versions); err == nil {
 			version = matchingVersion
@@ -135,7 +132,15 @@ func (c *Supply) InstallYarn() error {
 			return err
 		}
 		version = dep.Version
+	} else {
+		versionConstraint := version
+		versions := c.Manifest.AllDependencyVersions("yarn")
+		if matchingVersion, err := libbuildpack.FindMatchingVersion(versionConstraint, versions); err == nil {
+			version = matchingVersion
+		}
 	}
+
+
 	if err := c.Manifest.InstallDependency(libbuildpack.Dependency{Name: "yarn", Version: version}, tmpDir); err != nil {
 		return err
 	}
