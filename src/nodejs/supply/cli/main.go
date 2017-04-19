@@ -43,6 +43,7 @@ func main() {
 	}
 
 	if err := supplier.InstallBins(); err != nil {
+		compiler.Log.BeginStep("Build failed")
 		os.Exit(13)
 	}
 }
