@@ -17,21 +17,24 @@ func main() {
 
 	compiler, err := libbuildpack.NewCompiler([]string{buildDir, cacheDir, "", depsDir}, libbuildpack.Log)
 	if err != nil {
+		compiler.Log.BeginStep("Build failed")
 		os.Exit(10)
 	}
 
 	if err := compiler.CheckBuildpackValid(); err != nil {
+		compiler.Log.BeginStep("Build failed")
 		os.Exit(11)
 	}
 
 	packageJson, err := packagejson.New(compiler.Log, libbuildpack.NewJSON(), compiler.BuildDir)
 	if err != nil {
-		panic(err)
+		compiler.Log.BeginStep("Build failed")
 		os.Exit(12)
 	}
 
 	if err := compiler.LoadSuppliedDeps(); err != nil {
 		compiler.Log.Error("LoadSupplied Deps failed")
+		compiler.Log.BeginStep("Build failed")
 		os.Exit(13)
 	}
 
@@ -53,6 +56,7 @@ func main() {
 		Runner:   runner,
 	}
 	if err = run(c, cacher); err != nil {
+		compiler.Log.BeginStep("Build failed")
 		compiler.Log.Error("Compile failed")
 		os.Exit(13)
 	}

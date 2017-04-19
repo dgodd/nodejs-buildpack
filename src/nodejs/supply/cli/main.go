@@ -17,16 +17,19 @@ func main() {
 
 	compiler, err := libbuildpack.NewCompiler([]string{buildDir, cacheDir, "", depsDir}, libbuildpack.Log)
 	if err != nil {
+		compiler.Log.BeginStep("Build failed")
 		os.Exit(10)
 	}
 
 	if err := compiler.CheckBuildpackValid(); err != nil {
+		compiler.Log.BeginStep("Build failed")
 		os.Exit(11)
 	}
 
 	json := libbuildpack.NewJSON()
 	packageJson, err := packagejson.New(compiler.Log, json, compiler.BuildDir)
 	if err != nil {
+		compiler.Log.BeginStep("Build failed")
 		os.Exit(12)
 	}
 
