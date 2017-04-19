@@ -208,9 +208,8 @@ var _ = Describe("Deploy", func() {
 
 			Expect(app.GetBody("/")).To(Equal("Hello, World!"))
 
-			Specify("correctly displays the buildpack version", func() {
-				Expect(app.Stdout.String()).To(ContainSubstring("node.js " + buildpackVersion))
-			})
+			Specify("correctly displays the buildpack version")
+			Expect(app.Stdout.String()).To(ContainSubstring("node.js " + buildpackVersion))
 		})
 	})
 
