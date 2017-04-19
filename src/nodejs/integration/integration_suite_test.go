@@ -17,7 +17,7 @@ func TestIntegration(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
-	data, err := ioutil.ReadFile("../../../manifest.yml")
+	data, err := ioutil.ReadFile("../../../VERSION")
 	Expect(err).NotTo(HaveOccurred())
 	buildpackVersion = string(data)
 })
